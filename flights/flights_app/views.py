@@ -23,7 +23,9 @@ def airport_autocomplete(request):
                 id=air.id,
                 country=air.country,
                 city=air.city,
-                name=air.name
+                name=air.name,
+                lat=air.lat,
+                lon=air.lon,
             )
             airports = json.dumps([extract_from_airport(air) for air in res_set[:10]], indent=2)
             return HttpResponse(content=airports,
