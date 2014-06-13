@@ -1,12 +1,13 @@
 "use strict";
 
-$('html').on('click', function() {
-    $('.completion_tooltip').remove();
+$('html').on('click', function(event) {
+    if (event.type !== 'focus')
+        $('.completion_tooltip').remove();
 });
 
 var make_completion = function(params) {
     var fields_vals = $(params.fields_selector)
-            .on('change', function() {
+            .on('input focus', function() {
                 var target = this;
                 process_variants(
                         function(data) {
@@ -26,6 +27,7 @@ var make_completion = function(params) {
         fields[keys[i]] = fields_vals[i];
     }
     function build_tooltip(variants, target) {
+        $('.completion_tooltip').remove();
         var html = '<div class="completion_tooltip">';
         html += '<ul>';
         for (var i in variants) {
@@ -34,11 +36,11 @@ var make_completion = function(params) {
         html += '</ul>';
         html += '</div>';
         console.log(html);
-        $(html).find('li')
+        $(html).appendTo($(target).parent()).find('li')
                 .click(function() {
-                    target.value = $(this).contents()[0];
+                    $(target).val($(this).html()).trigger('input');
                 });
-        $(html).appendTo($(target).parent()[0]);
+
     }
     function process_variants(next_action) {
         var data = {};
@@ -56,8 +58,8 @@ var params = {
     fields_selector: '#completion_fields input[type=text]',
     on_completion: function(completions) {
         if (completions.length === 1) {
-            air = completions[0];
-            map.setLocation(new google.maps.LatLng(air.lat, air.lon));
+            var air = completions[0];
+            map.setCenter(new google.maps.LatLng(air.lat, air.lon));
         }
     }
 };
