@@ -1,10 +1,5 @@
 "use strict";
 
-$('html').on('click', function(event) {
-    if (event.type !== 'focus')
-        $('.completion_tooltip').remove();
-});
-
 var make_completion = function(params) {
     var fields_vals = $(params.fields_selector)
             .on('input focus', function() {
@@ -18,6 +13,9 @@ var make_completion = function(params) {
                         }
                 );
             })
+                    .on('blur', function(){
+                $('.completion_tooltip').slideUp('slow', function(){$(this).remove();});
+            })
             .get();
     var keys = $.map(fields_vals, function(field) {
         return field.name;
@@ -27,7 +25,7 @@ var make_completion = function(params) {
         fields[keys[i]] = fields_vals[i];
     }
     function build_tooltip(variants, target) {
-        $('.completion_tooltip').remove();
+//        $('.completion_tooltip').remove();
         var html = '<div class="completion_tooltip">';
         html += '<ul>';
         for (var i in variants) {
@@ -35,10 +33,17 @@ var make_completion = function(params) {
         }
         html += '</ul>';
         html += '</div>';
-        console.log(html);
-        $(html).appendTo($(target).parent()).find('li')
-                .click(function() {
-                    $(target).val($(this).html()).trigger('input');
+//        console.log(html);
+        $(html).appendTo($(target).parent()).hide(0, function(){$(this).slideDown('slow');}).find('li')
+                .mousedown(function() {
+                    $(target).val($(this).html());
+                    process_variants(
+                            function(data) {
+                                if (data.length === 1)
+                                    params.on_completion(data);
+
+                            }
+                    );
                 });
 
     }
@@ -56,12 +61,23 @@ var make_completion = function(params) {
 var params = {
     completion_url: 'autocomplete',
     fields_selector: '#completion_fields input[type=text]',
-    on_completion: function(completions) {
-        if (completions.length === 1) {
-            var air = completions[0];
-            map.setCenter(new google.maps.LatLng(air.lat, air.lon));
-        }
-    }
+    on_completion: (function() {
+        var marker;
+        return function(completions) {
+            if (completions.length === 1) {
+                if (marker)
+                    marker.setMap(null);
+                var air = completions[0];
+                var pos = new google.maps.LatLng(air.lat, air.lon);
+                marker = new google.maps.Marker({
+                    position: pos,
+                    title: air.name,
+                    map: map
+                });
+                map.setCenter(pos);
+            }
+        };
+    })()
 };
 
 $(document).ready(function() {

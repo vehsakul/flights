@@ -22,12 +22,23 @@
             position: relative;
         }
         .completion_tooltip {
+            margin: 0;
+            padding: 0;
+            top: 0;
+            left: 0;
             position: absolute;
             z-index: 999;
         }
+        .completion_tooltip ul{
+            padding: 0;
+            margin: 0;
+        }
         .completion_tooltip li{
+            margin: 0;
             cursor: pointer;
             border: solid 1px;
+            background-color: white;
+            list-style: none;
         }
         .completion_tooltip li:hover{
             font-weight: bold;
@@ -54,10 +65,13 @@
 <form id="completion_fields" action="">
     {% csrf_token %}
     {% for field in form %}
-        <div class="completion">
-            {{ field.errors }}
-            {{ field.label_tag }} {{ field }}
-        </div>
+    <span>
+        {{ field.errors }}
+        {{ field.label_tag }}
+        <span class="completion">
+            {{ field }}
+        </span>
+    </span>
     {% endfor %}
 </form>
 <div id="map_canvas" ></div>

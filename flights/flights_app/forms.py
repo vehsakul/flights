@@ -1,4 +1,4 @@
-from models import *
+from .models import *
 import django.forms as forms
 
 class AirportForm(forms.ModelForm):

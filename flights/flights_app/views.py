@@ -1,6 +1,6 @@
 from django.shortcuts import render
-from models import Airport, Route
-from forms import *
+from .models import Airport, Route
+from .forms import *
 import json
 from django.http import HttpRequest, HttpResponse
 
@@ -31,7 +31,7 @@ def airport_autocomplete(request):
             return HttpResponse(content=airports,
                                 content_type='text/json')
         else:
-            print form.errors
+            print(form.errors)
     return HttpResponse(status=400)
 
 
